@@ -9,7 +9,7 @@
 
 static void validateVertex(int v, int n) {
     if (v < 0 || v >= n)
-        throw std::out_of_range("Vértice fora do intervalo [0, " +
+        throw std::out_of_range("Vertice fora do intervalo [0, " +
                                 std::to_string(n - 1) + "]");
 }
 
@@ -22,7 +22,7 @@ Graph::Graph(int numVertices)
       _adj(numVertices)          // inicializa numVertices listas vazias
 {
     if (numVertices < 0)
-        throw std::invalid_argument("Número de vértices não pode ser negativo");
+        throw std::invalid_argument("Numero de vertices nao pode ser negativo");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

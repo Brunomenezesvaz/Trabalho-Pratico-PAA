@@ -32,29 +32,29 @@ int main() {
     g1.print();
     std::cout << "Arestas: " << g1.numEdges() << "\n";
 
-    printSection("Redução transitiva — DFS");
+    printSection("Reducao transitiva - DFS");
     ReductionResult resDFS = TransitiveReductionDFS::reduce(g1);
     g1.print();
     std::cout << "Arestas removidas: " << resDFS.removedEdges << "\n";
     std::cout << "Arestas restantes: " << g1.numEdges() << "\n";
-    std::cout << "Operações (visitas): " << resDFS.operations << "\n";
+    std::cout << "Operacoes (visitas): " << resDFS.operations << "\n";
 
     printSection("Grafo original (novo)");
     Graph g2 = buildTestGraph();
     g2.print();
     std::cout << "Arestas: " << g2.numEdges() << "\n";
 
-    printSection("Redução transitiva — BFS");
+    printSection("Reducao transitiva - BFS");
     ReductionResult resBFS = TransitiveReductionBFS::reduce(g2);
     g2.print();
     std::cout << "Arestas removidas: " << resBFS.removedEdges << "\n";
     std::cout << "Arestas restantes: " << g2.numEdges() << "\n";
-    std::cout << "Operações (expansões/leituras): " << resBFS.operations << "\n";
+    std::cout << "Operacoes (expansoes/leituras): " << resBFS.operations << "\n";
 
-    printSection("Verificação de Sanidade");
+    printSection("Verificacao de Sanidade");
     bool same = (resDFS.removedEdges == resBFS.removedEdges) && (g1.numEdges() == g2.numEdges());
-    std::cout << (same ? "OK — ambos produziram o mesmo resultado de redução.\n"
-                       : "ERRO — resultados divergem!\n");
+    std::cout << (same ? "OK - ambos produziram o mesmo resultado de reducao.\n"
+                       : "ERRO - resultados divergem!\n");
 
     // ── Benchmark Experimental Completo ───────────────────────────────────────
     printSection("Benchmark Experimental");
