@@ -20,15 +20,15 @@ class TransitiveReductionDFS {
 public:
     /**
      * Aplica a redução transitiva in-place sobre o grafo g.
-     * Retorna o número de arestas removidas.
+     * Retorna o resultado da redução (arestas removidas e contagem de operações).
      */
-    static int reduce(Graph& g);
+    static ReductionResult reduce(Graph& g);
 
 private:
     /**
      * DFS a partir de `start` no grafo g.
      * Retorna true se `target` for alcançado.
      */
-    static bool dfs(const Graph& g, int start, int target,
-                    std::vector<bool>& visited);
+    static bool dfs(const Graph& g, int current, int target,
+                    std::vector<bool>& visited, long long& operations);
 };

@@ -5,7 +5,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 bool TransitiveReductionDFS::dfs(const Graph& g, int current, int target,
-                                  std::vector<bool>& visited) {
+                                  std::vector<bool>& visited, long long& operations) {
+    operations++; // Conta cada chamada de DFS (visita a vértice)
+    
     // Explora cada aresta ativa saindo de current
     for (const Edge& e : g.edges(current)) {
         if (e.excluded) continue;          // ignora arestas excluídas
@@ -13,7 +15,7 @@ bool TransitiveReductionDFS::dfs(const Graph& g, int current, int target,
         if (visited[e.to]) continue;       // evita revisitar
 
         visited[e.to] = true;
-        if (dfs(g, e.to, target, visited))
+        if (dfs(g, e.to, target, visited, operations))
             return true;
     }
     return false;
@@ -23,8 +25,9 @@ bool TransitiveReductionDFS::dfs(const Graph& g, int current, int target,
 // Algoritmo principal
 // ─────────────────────────────────────────────────────────────────────────────
 
-int TransitiveReductionDFS::reduce(Graph& g) {
+ReductionResult TransitiveReductionDFS::reduce(Graph& g) {
     int removed = 0;
+    long long operations = 0;
     const int V = g.numVertices();
 
     for (int u = 0; u < V; ++u) {
@@ -44,7 +47,7 @@ int TransitiveReductionDFS::reduce(Graph& g) {
             // Passo 2: DFS de u sem usar a aresta excluída
             std::vector<bool> visited(V, false);
             visited[u] = true;
-            bool reachable = dfs(g, u, v, visited);
+            bool reachable = dfs(g, u, v, visited, operations);
 
             // Passo 3: decide
             if (reachable) {
@@ -58,5 +61,5 @@ int TransitiveReductionDFS::reduce(Graph& g) {
         }
     }
 
-    return removed;
+    return {removed, operations};
 }
