@@ -122,23 +122,13 @@ Para cada combinação (V, p), os dois algoritmos recebem **o mesmo grafo** (mes
 
 - Tempo de execução (ms)
 - Número de arestas removidas
-- Número de operações internas (visitas recursivas na DFS / relaxamentos de aresta no Bellman-Ford)
-
-### Limite de Complexidade e Proteção
-
-Devido à complexidade de pior caso de $O(V \cdot E^2)$ do algoritmo Bellman-Ford Adaptado, a execução desse método em grafos de grande escala e densos exige dezenas de bilhões de operações, o que causaria o travamento/congelamento dos testes por horas.
-
-Para contornar isso, o benchmark possui um **limite de proteção de $10^{10}$ operações estimadas**, pulando automaticamente a execução do Bellman-Ford nas seguintes configurações (sendo exibido como `PULADO` no console e nos arquivos de resultados):
-- $V \ge 250$ com probabilidade $p \ge 50$\%
-- $V \ge 500$ em todas as densidades ($p \in$ {20%, 50%, 80%})
-
-O algoritmo DFS, devido à sua eficiência assintótica ($O(E \cdot (V + E))$), é executado em todas as configurações sem restrições.
+- Número de operações internas (visitas recursivas na DFS / expansões de vértices e checagens na BFS)
 
 ### Hipóteses esperadas
 
-- Em grafos **esparsos** ($p = 20$\%): ambos os algoritmos performam de forma relativamente próxima, com a DFS levando vantagem.
-- Em grafos **densos** ($p = 50$\% a $80$\%): o custo $O(V \cdot E^2)$ do Bellman-Ford cresce a taxas críticas — o número de operações internas no Bellman-Ford explode, enquanto na DFS a alta densidade de caminhos alternativos acelera o término da busca, tornando-a ordens de grandeza mais rápida.
-- A diferença entre os dois algoritmos cresce com a escala $V$, confirmando as previsões da análise de complexidade teórica.
+- Em grafos **esparsos** ($p = 20$\%): ambos os algoritmos performam de forma próxima, com a BFS apresentando leve vantagem de tempo devido à implementação iterativa livre de overhead de pilha.
+- Em grafos **densos** ($p = 50$\% a $80$\%): a BFS se torna massivamente mais rápida do que a DFS (atingindo velocidades até 32x superiores em grafos com $V=1000$). Isso ocorre porque, em grafos muito densos, o menor caminho alternativo é quase sempre de comprimento 2. A BFS, ao expandir em largura (nível por nível), encontra esse caminho curto instantaneamente no segundo nível. A DFS, por outro lado, tenta caminhos mais profundos primeiro, gerando um número excessivo de operações e chamadas recursivas antes de encontrar o destino.
+- A diferença entre os dois algoritmos escala com a dimensão $V$, consolidando a BFS como a abordagem prática mais eficiente para a redução.
 
 ---
 
@@ -147,7 +137,7 @@ O algoritmo DFS, devido à sua eficiência assintótica ($O(E \cdot (V + E))$), 
 ### Compilação (GCC com suporte a C++17)
 
 ```bash
-g++ -std=c++17 -O2 -o transitive_reduction Graph.cpp TransitiveReductionDFS.cpp TransitiveReductionBF.cpp Benchmark.cpp main.cpp
+g++ -std=c++17 -O2 -o transitive_reduction Graph.cpp TransitiveReductionDFS.cpp TransitiveReductionBFS.cpp Benchmark.cpp main.cpp
 ```
 
 ### Execução
