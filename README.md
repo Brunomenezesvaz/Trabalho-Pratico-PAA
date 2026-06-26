@@ -129,15 +129,15 @@ Para cada combinação (V, p), os dois algoritmos recebem **o mesmo grafo** (mes
 Devido à complexidade de pior caso de $O(V \cdot E^2)$ do algoritmo Bellman-Ford Adaptado, a execução desse método em grafos de grande escala e densos exige dezenas de bilhões de operações, o que causaria o travamento/congelamento dos testes por horas.
 
 Para contornar isso, o benchmark possui um **limite de proteção de $10^{10}$ operações estimadas**, pulando automaticamente a execução do Bellman-Ford nas seguintes configurações (sendo exibido como `PULADO` no console e nos arquivos de resultados):
-- $V \ge 250$ com probabilidade $p \ge 50\%$
-- $V \ge 500$ em todas as densidades ($p \in \{20\%, 50\%, 80\%\}$)
+- $V \ge 250$ com probabilidade $p \ge 50$\%
+- $V \ge 500$ em todas as densidades ($p \in$ {20%, 50%, 80%})
 
 O algoritmo DFS, devido à sua eficiência assintótica ($O(E \cdot (V + E))$), é executado em todas as configurações sem restrições.
 
 ### Hipóteses esperadas
 
-- Em grafos **esparsos** ($p = 20\%$): ambos os algoritmos performam de forma relativamente próxima, com a DFS levando vantagem.
-- Em grafos **densos** ($p = 50$--$80\%$): o custo $O(V \cdot E^2)$ do Bellman-Ford cresce a taxas críticas — o número de operações internas no Bellman-Ford explode, enquanto na DFS a alta densidade de caminhos alternativos acelera o término da busca, tornando-a ordens de grandeza mais rápida.
+- Em grafos **esparsos** ($p = 20$\%): ambos os algoritmos performam de forma relativamente próxima, com a DFS levando vantagem.
+- Em grafos **densos** ($p = 50$\% a $80$\%): o custo $O(V \cdot E^2)$ do Bellman-Ford cresce a taxas críticas — o número de operações internas no Bellman-Ford explode, enquanto na DFS a alta densidade de caminhos alternativos acelera o término da busca, tornando-a ordens de grandeza mais rápida.
 - A diferença entre os dois algoritmos cresce com a escala $V$, confirmando as previsões da análise de complexidade teórica.
 
 ---
