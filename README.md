@@ -30,16 +30,16 @@ Grafo original G:          Redução transitiva G':
 
 ## Representação do Grafo
 
-O grafo é representado por **lista de adjacência** (`vector<vector<int>>`).
+O grafo é representado por uma **lista de adjacência** estruturada (`vector<vector<Edge>>`), onde cada elemento `Edge` contém:
+- `int to`: Vértice de destino da aresta.
+- `bool excluded`: Flag booleano indicando se a aresta está temporariamente desativada/excluída.
 
 **Justificativa:**
 
-- Redução transitiva exige múltiplas travessias — uma por aresta. Cada travessia
-  custa O(V + E) com lista de adjacência, contra O(V²) com matriz de adjacência.
-- Grafos do mundo real tendem a ser esparsos: a lista consome O(V + E) de memória,
-  enquanto a matriz consumiria O(V²).
-- A estrutura suporta uma **flag de exclusão de aresta** sem overhead significativo,
-  necessária para o algoritmo de Bellman-Ford adaptado.
+- A redução transitiva exige múltiplas travessias — uma busca de alcançabilidade por aresta. Cada travessia custa $O(V + E)$ com lista de adjacência, contra $O(V^2)$ se usássemos matriz de adjacência.
+- Grafos reais tendem a ser esparsos: a lista consome $O(V + E)$ de memória, enquanto a matriz consumiria $O(V^2)$.
+- A flag `excluded` na própria estrutura `Edge` permite que os algoritmos desativem/ativem arestas de forma muito eficiente e **in-place** durante os testes de alcançabilidade, evitando o custo de copiar o grafo ou reconstruí-lo a cada iteração.
+
 
 ### Grafos não-direcionados
 
@@ -93,27 +93,23 @@ alternativos, não para otimização de distâncias com pesos negativos.
 ## Estrutura do Projeto
 
 ```
-graph/
-├── Graph.h                      Declaração da classe Graph
-├── Graph.cpp                    Implementação da lista de adjacência + flag de exclusão
-├── TransitiveReduction.h        Interface comum aos dois algoritmos
-├── TransitiveReductionDFS.h     Declaração do algoritmo DFS
-├── TransitiveReductionDFS.cpp   Implementação do algoritmo DFS
-├── TransitiveReductionBF.h      Declaração do algoritmo Bellman-Ford adaptado
-├── TransitiveReductionBF.cpp    Implementação do algoritmo Bellman-Ford adaptado
-├── Benchmark.h                  Gerador de grafos aleatórios + cronômetro
-├── Benchmark.cpp                Implementação do benchmark
-├── main.cpp                     Orquestração dos testes e saída dos resultados
-└── README.md                    Este arquivo
+├── Graph.h                      Declaração da classe Graph e estrutura Edge
+├── Graph.cpp                    Implementação do Grafo (lista de adjacência + exclusão in-place)
+├── TransitiveReductionDFS.h     Declaração do algoritmo de redução por DFS
+├── TransitiveReductionDFS.cpp   Implementação da redução DFS com contagem de visitas recursivas
+├── TransitiveReductionBF.h      Declaração do algoritmo por Bellman-Ford Adaptado
+├── TransitiveReductionBF.cpp    Implementação da redução Bellman-Ford com contagem de relaxamentos
+├── Benchmark.h                  Declaração do gerador aleatório e orquestrador do benchmark
+├── Benchmark.cpp                Orquestração do benchmark (Erdős-Rényi e medições)
+├── main.cpp                     Ponto de entrada (validação de sanidade e execução)
+└── README.md                    Este arquivo de documentação
 ```
 
 ---
 
 ## Benchmark
 
-Os algoritmos são comparados experimentalmente em grafos aleatórios gerados pelo
-modelo **Erdős–Rényi direcionado**: cada aresta (u, v) com u ≠ v existe com
-probabilidade p independentemente.
+Os algoritmos são comparados experimentalmente em grafos aleatórios gerados pelo modelo **Erdős–Rényi direcionado**: cada aresta (u, v) com u ≠ v existe com probabilidade p independentemente.
 
 ### Variáveis testadas
 
@@ -122,44 +118,61 @@ probabilidade p independentemente.
 | Vértices (V) | 50, 100, 250, 500, 1000 |
 | Densidade (p) | 20%, 50%, 80% |
 
-Para cada combinação (V, p), os dois algoritmos recebem **o mesmo grafo** (mesma
-seed aleatória) e são cronometrados individualmente. Métricas coletadas:
+Para cada combinação (V, p), os dois algoritmos recebem **o mesmo grafo** (mesma seed aleatória) e são cronometrados individualmente. Métricas coletadas:
 
 - Tempo de execução (ms)
 - Número de arestas removidas
-- Número de operações internas (visitas DFS / relaxamentos BF)
+- Número de operações internas (visitas recursivas na DFS / relaxamentos de aresta no Bellman-Ford)
+
+### Limite de Complexidade e Proteção
+
+Devido à complexidade de pior caso de $O(V \cdot E^2)$ do algoritmo Bellman-Ford Adaptado, a execução desse método em grafos de grande escala e densos exige dezenas de bilhões de operações, o que causaria o travamento/congelamento dos testes por horas.
+
+Para contornar isso, o benchmark possui um **limite de proteção de $10^{10}$ operações estimadas**, pulando automaticamente a execução do Bellman-Ford nas seguintes configurações (sendo exibido como `PULADO` no console e nos arquivos de resultados):
+- $V \ge 250$ com probabilidade $p \ge 50\%$
+- $V \ge 500$ em todas as densidades ($p \in \{20\%, 50\%, 80\%\}$)
+
+O algoritmo DFS, devido à sua eficiência assintótica ($O(E \cdot (V + E))$), é executado em todas as configurações sem restrições.
 
 ### Hipóteses esperadas
 
-- Em grafos **esparsos** (p = 20%): ambos os algoritmos performam de forma próxima,
-  com DFS levando leve vantagem.
-- Em grafos **densos** (p = 50–80%): o custo O(V · E²) do Bellman-Ford se torna
-  evidente — crescimento muito mais acentuado que o O(E · (V + E)) do DFS.
-- A diferença entre os dois cresce com V, confirmando a análise assintótica.
+- Em grafos **esparsos** ($p = 20\%$): ambos os algoritmos performam de forma relativamente próxima, com a DFS levando vantagem.
+- Em grafos **densos** ($p = 50$--$80\%$): o custo $O(V \cdot E^2)$ do Bellman-Ford cresce a taxas críticas — o número de operações internas no Bellman-Ford explode, enquanto na DFS a alta densidade de caminhos alternativos acelera o término da busca, tornando-a ordens de grandeza mais rápida.
+- A diferença entre os dois algoritmos cresce com a escala $V$, confirmando as previsões da análise de complexidade teórica.
 
 ---
 
 ## Como compilar e executar
 
-```bash
-# Compilar
-g++ -std=c++17 -O2 -o transitive_reduction \
-    Graph.cpp \
-    TransitiveReductionDFS.cpp \
-    TransitiveReductionBF.cpp \
-    Benchmark.cpp \
-    main.cpp
+### Compilação (GCC com suporte a C++17)
 
-# Executar
+```bash
+g++ -std=c++17 -O2 -o transitive_reduction Graph.cpp TransitiveReductionDFS.cpp TransitiveReductionBF.cpp Benchmark.cpp main.cpp
+```
+
+### Execução
+
+**No Linux/macOS:**
+```bash
 ./transitive_reduction
 ```
+
+**No Windows (PowerShell/CMD):**
+```powershell
+.\transitive_reduction.exe
+```
+
+### Saída de Resultados
+Ao executar o programa:
+1. Um **teste de sanidade** é executado inicialmente em um grafo pequeno para verificar e certificar que ambos os algoritmos produzem exatamente a mesma redução transitiva.
+2. A bateria completa de testes experimentais é executada para todas as configurações de $(V, p)$.
+3. As médias de tempo e operações de cada configuração são salvas automaticamente em um arquivo CSV chamado `benchmark_results.csv` na raiz do diretório.
 
 ---
 
 ## Dependências
 
-- C++17 ou superior
-- Biblioteca padrão apenas (`<vector>`, `<chrono>`, `<random>`, `<iostream>`)
-- Nenhuma dependência externa
+- Compilador C++ com suporte ao padrão **C++17** (como o `g++` ou `clang++`)
+- Apenas componentes da biblioteca padrão do C++ (STL), como `<vector>`, `<chrono>`, `<random>`, `<algorithm>`, `<iostream>`, `<fstream>` e `<iomanip>`
+- Nenhuma biblioteca ou dependência externa é requerida.
 
----
