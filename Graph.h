@@ -31,6 +31,11 @@ struct Edge {
  
     explicit Edge(int to) : to(to), excluded(false) {}
 };
+
+struct ReductionResult {
+    int removedEdges;
+    long long operations;
+};
  
 class Graph {
 public:
