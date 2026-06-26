@@ -73,20 +73,18 @@ Para cada aresta (u → v):
 
 **Complexidade:** O(E · (V + E))
 
-### 2. Bellman-Ford Adaptado
+### 2. BFS — Busca em Largura
 
 Para cada aresta (u → v):
 
 1. Marca a aresta como excluída temporariamente.
-2. Inicializa dist[u] = 0, dist[w] = ∞ para w ≠ u.
-3. Executa V − 1 rodadas de relaxamento sobre todas as arestas restantes.
-4. Se dist[v] < ∞ → aresta é redundante → remove permanentemente.
-5. Caso contrário → restaura a aresta.
+2. Executa uma Busca em Largura (BFS) a partir de u.
+3. Se v for alcançado durante a busca → aresta é redundante → remove permanentemente.
+4. Caso contrário → restaura a aresta.
 
-O Bellman-Ford é usado aqui como um detector de alcançabilidade por caminhos
-alternativos, não para otimização de distâncias com pesos negativos.
+A BFS foi otimizada para evitar overhead de alocação de memória dinâmica (`std::queue` e `std::vector<bool>`) em loops internos de exclusão, pré-alocando a fila e o vetor de visitados apenas uma vez.
 
-**Complexidade:** O(E · V · E) = O(V · E²)
+**Complexidade:** O(E · (V + E))
 
 ---
 
@@ -97,8 +95,8 @@ alternativos, não para otimização de distâncias com pesos negativos.
 ├── Graph.cpp                    Implementação do Grafo (lista de adjacência + exclusão in-place)
 ├── TransitiveReductionDFS.h     Declaração do algoritmo de redução por DFS
 ├── TransitiveReductionDFS.cpp   Implementação da redução DFS com contagem de visitas recursivas
-├── TransitiveReductionBF.h      Declaração do algoritmo por Bellman-Ford Adaptado
-├── TransitiveReductionBF.cpp    Implementação da redução Bellman-Ford com contagem de relaxamentos
+├── TransitiveReductionBFS.h     Declaração do algoritmo de redução por BFS
+├── TransitiveReductionBFS.cpp   Implementação da redução BFS otimizada
 ├── Benchmark.h                  Declaração do gerador aleatório e orquestrador do benchmark
 ├── Benchmark.cpp                Orquestração do benchmark (Erdős-Rényi e medições)
 ├── main.cpp                     Ponto de entrada (validação de sanidade e execução)
@@ -126,8 +124,8 @@ Para cada combinação (V, p), os dois algoritmos recebem **o mesmo grafo** (mes
 
 ### Hipóteses esperadas
 
-- Em grafos **esparsos** ($p = 20$\%): ambos os algoritmos performam de forma próxima, com a BFS apresentando leve vantagem de tempo devido à implementação iterativa livre de overhead de pilha.
-- Em grafos **densos** ($p = 50$\% a $80$\%): a BFS se torna massivamente mais rápida do que a DFS (atingindo velocidades até 32x superiores em grafos com $V=1000$). Isso ocorre porque, em grafos muito densos, o menor caminho alternativo é quase sempre de comprimento 2. A BFS, ao expandir em largura (nível por nível), encontra esse caminho curto instantaneamente no segundo nível. A DFS, por outro lado, tenta caminhos mais profundos primeiro, gerando um número excessivo de operações e chamadas recursivas antes de encontrar o destino.
+- Em grafos **esparsos** ($p = 20$\%): ambos os algoritmos performam de forma próxima, com a BFS apresentando vantagem de tempo devido à implementação iterativa livre de overhead de pilha (sendo cerca de 8,7x mais rápida na maior escala).
+- Em grafos **densos** ($p = 50$\% a $80$\%): a BFS se torna massivamente mais rápida do que a DFS (atingindo velocidades até 31x superiores em grafos com $V=1000$). Isso ocorre porque, em grafos muito densos, o menor caminho alternativo é quase sempre de comprimento 2. A BFS, ao expandir em largura (nível por nível), encontra esse caminho curto instantaneamente no segundo nível. A DFS, por outro lado, tenta caminhos mais profundos primeiro, gerando um número excessivo de operações e chamadas recursivas antes de encontrar o destino.
 - A diferença entre os dois algoritmos escala com a dimensão $V$, consolidando a BFS como a abordagem prática mais eficiente para a redução.
 
 ---
