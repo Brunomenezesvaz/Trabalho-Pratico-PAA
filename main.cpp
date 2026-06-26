@@ -1,8 +1,10 @@
 #include "Graph.h"
 #include "TransitiveReductionDFS.h"
 #include "TransitiveReductionBF.h"
+#include "Benchmark.h"
 #include <iostream>
- 
+#include <vector>
+
 // Constrói o grafo de teste:
 //   0 → 1 → 2 → 3
 //   0 -------→ 2   (redundante: 0→1→2)
@@ -18,41 +20,50 @@ Graph buildTestGraph() {
     g.addEdge(0, 3);
     return g;
 }
- 
+
 void printSection(const std::string& title) {
     std::cout << "\n=== " << title << " ===\n";
 }
- 
+
 int main() {
-    // ── Teste DFS ─────────────────────────────────────────────────────────────
+    // ── Teste de Sanidade ─────────────────────────────────────────────────────
     printSection("Grafo original");
     Graph g1 = buildTestGraph();
     g1.print();
     std::cout << "Arestas: " << g1.numEdges() << "\n";
- 
+
     printSection("Redução transitiva — DFS");
-    int removedDFS = TransitiveReductionDFS::reduce(g1);
+    ReductionResult resDFS = TransitiveReductionDFS::reduce(g1);
     g1.print();
-    std::cout << "Arestas removidas: " << removedDFS << "\n";
+    std::cout << "Arestas removidas: " << resDFS.removedEdges << "\n";
     std::cout << "Arestas restantes: " << g1.numEdges() << "\n";
- 
-    // ── Teste Bellman-Ford ────────────────────────────────────────────────────
+    std::cout << "Operações (visitas): " << resDFS.operations << "\n";
+
     printSection("Grafo original (novo)");
     Graph g2 = buildTestGraph();
     g2.print();
     std::cout << "Arestas: " << g2.numEdges() << "\n";
- 
+
     printSection("Redução transitiva — Bellman-Ford");
-    int removedBF = TransitiveReductionBF::reduce(g2);
+    ReductionResult resBF = TransitiveReductionBF::reduce(g2);
     g2.print();
-    std::cout << "Arestas removidas: " << removedBF << "\n";
+    std::cout << "Arestas removidas: " << resBF.removedEdges << "\n";
     std::cout << "Arestas restantes: " << g2.numEdges() << "\n";
- 
-    // ── Sanidade: os dois devem produzir o mesmo resultado ────────────────────
-    printSection("Verificação");
-    bool same = (removedDFS == removedBF) && (g1.numEdges() == g2.numEdges());
-    std::cout << (same ? "OK — ambos produziram o mesmo resultado.\n"
+    std::cout << "Operações (relaxamentos): " << resBF.operations << "\n";
+
+    printSection("Verificação de Sanidade");
+    bool same = (resDFS.removedEdges == resBF.removedEdges) && (g1.numEdges() == g2.numEdges());
+    std::cout << (same ? "OK — ambos produziram o mesmo resultado de redução.\n"
                        : "ERRO — resultados divergem!\n");
- 
+
+    // ── Benchmark Experimental Completo ───────────────────────────────────────
+    printSection("Benchmark Experimental");
+    
+    std::vector<int> vertexSizes = {50, 100, 250, 500, 1000};
+    std::vector<double> densities = {0.2, 0.5, 0.8};
+    
+    // Executa o benchmark com 3 rodadas para média
+    Benchmark::run(vertexSizes, densities, 3, "benchmark_results.csv");
+
     return 0;
 }
