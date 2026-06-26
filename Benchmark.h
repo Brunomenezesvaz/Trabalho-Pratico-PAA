@@ -14,10 +14,10 @@ struct TestResult {
     int dfsRemovedEdges;
     long long dfsOperations;
     
-    // BF Results
-    double bfTimeMs;
-    int bfRemovedEdges;
-    long long bfOperations;
+    // BFS Results
+    double bfsTimeMs;
+    int bfsRemovedEdges;
+    long long bfsOperations;
 };
 
 class Benchmark {
@@ -30,7 +30,7 @@ public:
 
     /**
      * Executa a bateria de testes definida no enunciado.
-     * V = {50, 100, 250, 500, 1000} (ou limite para BF se for muito lento)
+     * V = {50, 100, 250, 500, 1000}
      * p = {0.2, 0.5, 0.8}
      * Salva os resultados em um arquivo CSV para o relatório.
      */

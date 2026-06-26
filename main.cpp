@@ -1,6 +1,6 @@
 #include "Graph.h"
 #include "TransitiveReductionDFS.h"
-#include "TransitiveReductionBF.h"
+#include "TransitiveReductionBFS.h"
 #include "Benchmark.h"
 #include <iostream>
 #include <vector>
@@ -44,15 +44,15 @@ int main() {
     g2.print();
     std::cout << "Arestas: " << g2.numEdges() << "\n";
 
-    printSection("Redução transitiva — Bellman-Ford");
-    ReductionResult resBF = TransitiveReductionBF::reduce(g2);
+    printSection("Redução transitiva — BFS");
+    ReductionResult resBFS = TransitiveReductionBFS::reduce(g2);
     g2.print();
-    std::cout << "Arestas removidas: " << resBF.removedEdges << "\n";
+    std::cout << "Arestas removidas: " << resBFS.removedEdges << "\n";
     std::cout << "Arestas restantes: " << g2.numEdges() << "\n";
-    std::cout << "Operações (relaxamentos): " << resBF.operations << "\n";
+    std::cout << "Operações (expansões/leituras): " << resBFS.operations << "\n";
 
     printSection("Verificação de Sanidade");
-    bool same = (resDFS.removedEdges == resBF.removedEdges) && (g1.numEdges() == g2.numEdges());
+    bool same = (resDFS.removedEdges == resBFS.removedEdges) && (g1.numEdges() == g2.numEdges());
     std::cout << (same ? "OK — ambos produziram o mesmo resultado de redução.\n"
                        : "ERRO — resultados divergem!\n");
 

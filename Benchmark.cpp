@@ -1,6 +1,6 @@
 #include "Benchmark.h"
 #include "TransitiveReductionDFS.h"
-#include "TransitiveReductionBF.h"
+#include "TransitiveReductionBFS.h"
 
 #include <chrono>
 #include <random>
@@ -32,7 +32,7 @@ std::vector<TestResult> Benchmark::run(const std::vector<int>& vertexSizes,
     
     std::ofstream csv(csvFilename);
     if (csv.is_open()) {
-        csv << "V,p,initialEdges,dfsTimeMs,dfsRemoved,dfsOps,bfTimeMs,bfRemoved,bfOps\n";
+        csv << "V,p,initialEdges,dfsTimeMs,dfsRemoved,dfsOps,bfsTimeMs,bfsRemoved,bfsOps\n";
     }
 
     std::cout << "\nIniciando Benchmark...\n";
@@ -42,8 +42,8 @@ std::vector<TestResult> Benchmark::run(const std::vector<int>& vertexSizes,
               << std::setw(12) << "Arestas"
               << std::setw(15) << "DFS (ms)"
               << std::setw(15) << "DFS Ops"
-              << std::setw(15) << "BF (ms)"
-              << std::setw(15) << "BF Ops" << "\n";
+              << std::setw(15) << "BFS (ms)"
+              << std::setw(15) << "BFS Ops" << "\n";
     std::cout << "--------------------------------------------------------------------------------\n";
 
     unsigned int seedBase = 42;
@@ -51,20 +51,12 @@ std::vector<TestResult> Benchmark::run(const std::vector<int>& vertexSizes,
     for (int V : vertexSizes) {
         for (double p : densities) {
             double totalDfsTime = 0;
-            double totalBfTime = 0;
+            double totalBfsTime = 0;
             long long totalDfsRemoved = 0;
-            long long totalBfRemoved = 0;
+            long long totalBfsRemoved = 0;
             long long totalDfsOps = 0;
-            long long totalBfOps = 0;
+            long long totalBfsOps = 0;
             int initialEdges = 0;
-
-            // Decidir se o Bellman-Ford deve ser pulado por complexidade
-            // Estimativa: V * E^2. Se V >= 250 e p >= 0.5, pulamos BF para evitar travar.
-            bool skipBF = false;
-            long long estimatedEdges = static_cast<long long>(V) * (V - 1) * p;
-            if (V >= 250 && (p >= 0.5 || V > 250)) {
-                skipBF = true;
-            }
 
             for (int run = 0; run < numRuns; ++run) {
                 unsigned int seed = seedBase + run * 1000 + V + static_cast<int>(p * 100);
@@ -86,52 +78,43 @@ std::vector<TestResult> Benchmark::run(const std::vector<int>& vertexSizes,
                     totalDfsOps += res.operations;
                 }
 
-                // Testar Bellman-Ford
-                if (!skipBF) {
-                    Graph gBf = g;
+                // Testar BFS
+                {
+                    Graph gBfs = g;
                     auto start = std::chrono::high_resolution_clock::now();
-                    ReductionResult res = TransitiveReductionBF::reduce(gBf);
+                    ReductionResult res = TransitiveReductionBFS::reduce(gBfs);
                     auto end = std::chrono::high_resolution_clock::now();
                     std::chrono::duration<double, std::milli> duration = end - start;
 
-                    totalBfTime += duration.count();
-                    totalBfRemoved += res.removedEdges;
-                    totalBfOps += res.operations;
+                    totalBfsTime += duration.count();
+                    totalBfsRemoved += res.removedEdges;
+                    totalBfsOps += res.operations;
                 }
             }
 
             double avgDfsTime = totalDfsTime / numRuns;
-            double avgBfTime = skipBF ? -1.0 : (totalBfTime / numRuns);
+            double avgBfsTime = totalBfsTime / numRuns;
             int avgDfsRemoved = static_cast<int>(totalDfsRemoved / numRuns);
-            int avgBfRemoved = skipBF ? -1 : static_cast<int>(totalBfRemoved / numRuns);
+            int avgBfsRemoved = static_cast<int>(totalBfsRemoved / numRuns);
             long long avgDfsOps = totalDfsOps / numRuns;
-            long long avgBfOps = skipBF ? -1 : (totalBfOps / numRuns);
+            long long avgBfsOps = totalBfsOps / numRuns;
 
-            TestResult res{V, p, initialEdges, avgDfsTime, avgDfsRemoved, avgDfsOps, avgBfTime, avgBfRemoved, avgBfOps};
+            TestResult res{V, p, initialEdges, avgDfsTime, avgDfsRemoved, avgDfsOps, avgBfsTime, avgBfsRemoved, avgBfsOps};
             results.push_back(res);
 
             if (csv.is_open()) {
                 csv << V << "," << p << "," << initialEdges << ","
-                    << avgDfsTime << "," << avgDfsRemoved << "," << avgDfsOps << ",";
-                if (skipBF) {
-                    csv << "N/A,N/A,N/A\n";
-                } else {
-                    csv << avgBfTime << "," << avgBfRemoved << "," << avgBfOps << "\n";
-                }
+                    << avgDfsTime << "," << avgDfsRemoved << "," << avgDfsOps << ","
+                    << avgBfsTime << "," << avgBfsRemoved << "," << avgBfsOps << "\n";
             }
 
             std::cout << std::left << std::setw(6) << V
-                      << std::setw(6) << p
-                      << std::setw(12) << initialEdges
-                      << std::setw(15) << std::fixed << std::setprecision(2) << avgDfsTime
-                      << std::setw(15) << avgDfsOps;
-            if (skipBF) {
-                std::cout << std::setw(15) << "PULADO"
-                          << std::setw(15) << "PULADO" << "\n";
-            } else {
-                std::cout << std::setw(15) << std::fixed << std::setprecision(2) << avgBfTime
-                          << std::setw(15) << avgBfOps << "\n";
-            }
+                       << std::setw(6) << p
+                       << std::setw(12) << initialEdges
+                       << std::setw(15) << std::fixed << std::setprecision(2) << avgDfsTime
+                       << std::setw(15) << avgDfsOps
+                       << std::setw(15) << std::fixed << std::setprecision(2) << avgBfsTime
+                       << std::setw(15) << avgBfsOps << "\n";
         }
     }
 
@@ -144,5 +127,5 @@ std::vector<TestResult> Benchmark::run(const std::vector<int>& vertexSizes,
 }
 
 void Benchmark::printResultsTable(const std::vector<TestResult>& results) {
-    // Apenas informativo, já imprimimos durante a execução do Benchmark::run
+    // Apenas informativo
 }
