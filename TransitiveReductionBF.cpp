@@ -4,7 +4,7 @@
 // Bellman-Ford adaptado (alcançabilidade por caminhos alternativos)
 // ─────────────────────────────────────────────────────────────────────────────
 
-std::vector<int> TransitiveReductionBF::bellmanFord(const Graph& g, int source) {
+std::vector<int> TransitiveReductionBF::bellmanFord(const Graph& g, int source, long long& operations) {
     const int V = g.numVertices();
     std::vector<int> dist(V, INF);
     dist[source] = 0;
@@ -18,6 +18,8 @@ std::vector<int> TransitiveReductionBF::bellmanFord(const Graph& g, int source) 
 
             for (const Edge& e : g.edges(u)) {
                 if (e.excluded) continue;    // ignora arestas excluídas
+
+                operations++; // Incrementa cada relaxamento de aresta ativa
 
                 // Relaxamento: todas as arestas têm peso 1
                 if (dist[u] + 1 < dist[e.to]) {
@@ -38,8 +40,9 @@ std::vector<int> TransitiveReductionBF::bellmanFord(const Graph& g, int source) 
 // Algoritmo principal
 // ─────────────────────────────────────────────────────────────────────────────
 
-int TransitiveReductionBF::reduce(Graph& g) {
+ReductionResult TransitiveReductionBF::reduce(Graph& g) {
     int removed = 0;
+    long long operations = 0;
     const int V = g.numVertices();
 
     for (int u = 0; u < V; ++u) {
@@ -56,7 +59,7 @@ int TransitiveReductionBF::reduce(Graph& g) {
             g.excludeEdge(u, v);
 
             // Passo 2: Bellman-Ford de u sem a aresta excluída
-            std::vector<int> dist = bellmanFord(g, u);
+            std::vector<int> dist = bellmanFord(g, u, operations);
 
             // Passo 3: decide
             if (dist[v] < INF) {
@@ -70,5 +73,5 @@ int TransitiveReductionBF::reduce(Graph& g) {
         }
     }
 
-    return removed;
+    return {removed, operations};
 }

@@ -25,9 +25,9 @@ class TransitiveReductionBF {
 public:
     /**
      * Aplica a redução transitiva in-place sobre o grafo g.
-     * Retorna o número de arestas removidas.
+     * Retorna o resultado da redução (arestas removidas e contagem de operações).
      */
-    static int reduce(Graph& g);
+    static ReductionResult reduce(Graph& g);
 
 private:
     static constexpr int INF = 1e9;
@@ -36,5 +36,5 @@ private:
      * Executa Bellman-Ford a partir de `source` no grafo g.
      * Retorna vetor de distâncias (INF = inalcançável).
      */
-    static std::vector<int> bellmanFord(const Graph& g, int source);
+    static std::vector<int> bellmanFord(const Graph& g, int source, long long& operations);
 };
