@@ -30,15 +30,15 @@ Grafo original G:          Redução transitiva G':
 
 ## Representação do Grafo
 
-O grafo é representado por uma **lista de adjacência** estruturada (`vector<vector<Edge>>`), onde cada elemento `Edge` contém:
-- `int to`: Vértice de destino da aresta.
-- `bool excluded`: Flag booleano indicando se a aresta está temporariamente desativada/excluída.
+O grafo é representado por uma **lista de adjacência** estruturada (`vector<vector<Aresta>>`), onde cada elemento `Aresta` contém:
+- `int destino`: Vértice de destino da aresta.
+- `bool excluida`: Flag booleano indicando se a aresta está temporariamente desativada/excluída.
 
 **Justificativa:**
 
 - A redução transitiva exige múltiplas travessias — uma busca de alcançabilidade por aresta. Cada travessia custa $O(V + E)$ com lista de adjacência, contra $O(V^2)$ se usássemos matriz de adjacência.
 - Grafos reais tendem a ser esparsos: a lista consome $O(V + E)$ de memória, enquanto a matriz consumiria $O(V^2)$.
-- A flag `excluded` na própria estrutura `Edge` permite que os algoritmos desativem/ativem arestas de forma muito eficiente e **in-place** durante os testes de alcançabilidade, evitando o custo de copiar o grafo ou reconstruí-lo a cada iteração.
+- A flag `excluida` na própria estrutura `Aresta` permite que os algoritmos desativem/ativem arestas de forma muito eficiente e **in-place** durante os testes de alcançabilidade, evitando o custo de copiar o grafo ou reconstruí-lo a cada iteração.
 
 
 ### Grafos não-direcionados
@@ -91,7 +91,7 @@ A BFS foi otimizada para evitar overhead de alocação de memória dinâmica (`s
 ## Estrutura do Projeto
 
 ```
-├── Graph.h                      Declaração da classe Graph e estrutura Edge
+├── Graph.h                      Declaração da classe Graph e estrutura Aresta
 ├── Graph.cpp                    Implementação do Grafo (lista de adjacência + exclusão in-place)
 ├── TransitiveReductionDFS.h     Declaração do algoritmo de redução por DFS
 ├── TransitiveReductionDFS.cpp   Implementação da redução DFS com contagem de visitas recursivas
