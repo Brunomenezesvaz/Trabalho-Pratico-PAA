@@ -2,10 +2,7 @@
 #include <vector>
 #include <algorithm>
 
-// ─────────────────────────────────────────────────────────────────────────────
-// BFS iterativa (Otimizada sem alocações na busca)
-// ─────────────────────────────────────────────────────────────────────────────
-
+// BFS iterativa
 bool TransitiveReductionBFS::bfs(const Graph& g, int origem, int alvo,
                                  std::vector<int>& q, std::vector<bool>& visitado,
                                  long long& ops) {
@@ -26,9 +23,9 @@ bool TransitiveReductionBFS::bfs(const Graph& g, int origem, int alvo,
  
         for (const Aresta& e : g.arestas(u)) {
             if (e.excluida) continue; // ignora arestas excluídas
-            ops++;             // conta cada checagem de aresta ativa
+            ops++; // conta cada checagem de aresta ativa
  
-            if (e.destino == alvo) return true; // alvo encontrado
+            if (e.destino == alvo) return true;
  
             if (!visitado[e.destino]) {
                 visitado[e.destino] = true;
@@ -39,10 +36,7 @@ bool TransitiveReductionBFS::bfs(const Graph& g, int origem, int alvo,
     return false;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Algoritmo principal
-// ─────────────────────────────────────────────────────────────────────────────
-
 ReductionResult TransitiveReductionBFS::reducao(Graph& g) {
     int removido = 0;
     long long ops = 0;
@@ -54,28 +48,27 @@ ReductionResult TransitiveReductionBFS::reducao(Graph& g) {
  
     for (int u = 0; u < V; ++u) {
         // Coleta destinos das arestas de u antes de iterar
-        // (evita invalidar iteradores durante remoções)
         std::vector<int> alvos;
         for (const Aresta& e : g.arestas(u))
             alvos.push_back(e.destino);
  
         for (int v : alvos) {
-            // Verifica se a aresta ainda existe (pode ter sido removida)
+            // Verifica se a aresta ainda existe
             if (!g.temAresta(u, v)) continue;
  
-            // Passo 1: exclui temporariamente u → v
+            // Exclui temporariamente u → v
             g.excluiAresta(u, v);
  
-            // Passo 2: BFS de u sem usar a aresta excluída
+            // BFS de u sem usar a aresta excluída
             bool alcancavel = bfs(g, u, v, q, visitado, ops);
  
-            // Passo 3: decide
+            // Decisão
             if (alcancavel) {
-                // Aresta redundante — remove permanentemente
+                // Se a aresta é redundante então remove permanentemente
                 g.removeAresta(u, v);
                 ++removido;
             } else {
-                // Aresta necessária — restaura
+                // Senão a aresta é necessária e a restaura
                 g.refazAresta(u, v);
             }
         }
