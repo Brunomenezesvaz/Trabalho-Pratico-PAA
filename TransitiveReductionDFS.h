@@ -9,7 +9,6 @@ public:
     static ReductionResult reducao(Graph& g);
 
 private:
-    // DFS
     static bool dfs(const Graph& g, int atual, int alvo,
                     std::vector<bool>& visitado, long long& ops);
 };
