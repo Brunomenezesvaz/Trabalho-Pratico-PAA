@@ -3,32 +3,23 @@
 #include <algorithm>
 #include <stdexcept>
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Helpers internos
-// ─────────────────────────────────────────────────────────────────────────────
-
 static void validaVertice(int v, int n) {
     if (v < 0 || v >= n)
         throw std::out_of_range("Vertice fora do intervalo [0, " +
                                 std::to_string(n - 1) + "]");
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Construtor
-// ─────────────────────────────────────────────────────────────────────────────
-
 Graph::Graph(int numVertices)
     : _numVertices(numVertices), _numArestas(0),
-      _adj(numVertices)          // inicializa numVertices listas vazias
+      _adj(numVertices) // Inicializa numVertices listas vazias
 {
     if (numVertices < 0)
         throw std::invalid_argument("Numero de vertices nao pode ser negativo");
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Consultas básicas
-// ─────────────────────────────────────────────────────────────────────────────
-
 int Graph::numVertices() const { return _numVertices; }
 int Graph::numArestas()   const { return _numArestas;    }
 
@@ -43,10 +34,7 @@ bool Graph::temAresta(int u, int v) const {
     return false;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Modificações
-// ─────────────────────────────────────────────────────────────────────────────
-
+// Modificadores
 void Graph::adicionaAresta(int u, int v) {
     validaVertice(u, _numVertices);
     validaVertice(v, _numVertices);
@@ -101,10 +89,7 @@ const std::vector<Aresta>& Graph::arestas(int u) const {
     return _adj[u];
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Impressão
-// ─────────────────────────────────────────────────────────────────────────────
-
 void Graph::print(std::ostream& out) const {
     for (int u = 0; u < _numVertices; ++u) {
         out << u << ":";
