@@ -7,7 +7,7 @@
 // Helpers internos
 // ─────────────────────────────────────────────────────────────────────────────
 
-static void validateVertex(int v, int n) {
+static void validaVertice(int v, int n) {
     if (v < 0 || v >= n)
         throw std::out_of_range("Vertice fora do intervalo [0, " +
                                 std::to_string(n - 1) + "]");
@@ -18,7 +18,7 @@ static void validateVertex(int v, int n) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 Graph::Graph(int numVertices)
-    : _numVertices(numVertices), _numEdges(0),
+    : _numVertices(numVertices), _numArestas(0),
       _adj(numVertices)          // inicializa numVertices listas vazias
 {
     if (numVertices < 0)
@@ -30,13 +30,13 @@ Graph::Graph(int numVertices)
 // ─────────────────────────────────────────────────────────────────────────────
 
 int Graph::numVertices() const { return _numVertices; }
-int Graph::numEdges()    const { return _numEdges;    }
+int Graph::numArestas()   const { return _numArestas;    }
 
-bool Graph::hasEdge(int u, int v) const {
-    validateVertex(u, _numVertices);
-    validateVertex(v, _numVertices);
-    for (const Edge& e : _adj[u]) {
-        if (e.to == v && !e.excluded) {
+bool Graph::temAresta(int u, int v) const {
+    validaVertice(u, _numVertices);
+    validaVertice(v, _numVertices);
+    for (const Aresta& e : _adj[u]) {
+        if (e.destino == v && !e.excluida) {
             return true;
         }
     }
@@ -47,57 +47,57 @@ bool Graph::hasEdge(int u, int v) const {
 // Modificações
 // ─────────────────────────────────────────────────────────────────────────────
 
-void Graph::addEdge(int u, int v) {
-    validateVertex(u, _numVertices);
-    validateVertex(v, _numVertices);
-    _adj[u].push_back(Edge(v));
-    ++_numEdges;
+void Graph::adicionaAresta(int u, int v) {
+    validaVertice(u, _numVertices);
+    validaVertice(v, _numVertices);
+    _adj[u].push_back(Aresta(v));
+    ++_numArestas;
 }
 
-bool Graph::removeEdge(int u, int v) {
-    validateVertex(u, _numVertices);
-    validateVertex(v, _numVertices);
+bool Graph::removeAresta(int u, int v) {
+    validaVertice(u, _numVertices);
+    validaVertice(v, _numVertices);
 
     auto& row = _adj[u];
-    auto it = std::find_if(row.begin(), row.end(), [v](const Edge& e) {
-        return e.to == v;
+    auto it = std::find_if(row.begin(), row.end(), [v](const Aresta& e) {
+        return e.destino == v;
     });
 
     if (it == row.end()) return false;
 
     row.erase(it);
-    --_numEdges;
+    --_numArestas;
     return true;
 }
 
-bool Graph::excludeEdge(int u, int v) {
-    validateVertex(u, _numVertices);
-    validateVertex(v, _numVertices);
+bool Graph::excluiAresta(int u, int v) {
+    validaVertice(u, _numVertices);
+    validaVertice(v, _numVertices);
 
-    for (Edge& e : _adj[u]) {
-        if (e.to == v) {
-            e.excluded = true;
+    for (Aresta& e : _adj[u]) {
+        if (e.destino == v) {
+            e.excluida = true;
             return true;
         }
     }
     return false;
 }
 
-bool Graph::restoreEdge(int u, int v) {
-    validateVertex(u, _numVertices);
-    validateVertex(v, _numVertices);
+bool Graph::refazAresta(int u, int v) {
+    validaVertice(u, _numVertices);
+    validaVertice(v, _numVertices);
 
-    for (Edge& e : _adj[u]) {
-        if (e.to == v) {
-            e.excluded = false;
+    for (Aresta& e : _adj[u]) {
+        if (e.destino == v) {
+            e.excluida = false;
             return true;
         }
     }
     return false;
 }
 
-const std::vector<Edge>& Graph::edges(int u) const {
-    validateVertex(u, _numVertices);
+const std::vector<Aresta>& Graph::arestas(int u) const {
+    validaVertice(u, _numVertices);
     return _adj[u];
 }
 
@@ -108,9 +108,9 @@ const std::vector<Edge>& Graph::edges(int u) const {
 void Graph::print(std::ostream& out) const {
     for (int u = 0; u < _numVertices; ++u) {
         out << u << ":";
-        for (const Edge& e : _adj[u]) {
-            if (!e.excluded) {
-                out << " " << e.to;
+        for (const Aresta& e : _adj[u]) {
+            if (!e.excluida) {
+                out << " " << e.destino;
             }
         }
         out << "\n";

@@ -22,14 +22,14 @@ public:
      * Aplica a redução transitiva in-place sobre o grafo g.
      * Retorna o resultado da redução (arestas removidas e contagem de operações).
      */
-    static ReductionResult reduce(Graph& g);
+    static ReductionResult reducao(Graph& g);
 
 private:
     /**
      * BFS a partir de `start` no grafo g usando estruturas pré-alocadas.
      * Retorna true se `target` for alcançado.
      */
-    static bool bfs(const Graph& g, int start, int target,
-                    std::vector<int>& q, std::vector<bool>& visited,
-                    long long& operations);
+    static bool bfs(const Graph& g, int origem, int alvo,
+                    std::vector<int>& q, std::vector<bool>& visitado,
+                    long long& ops);
 };

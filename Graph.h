@@ -25,16 +25,16 @@
  */
  
 /** Representa uma aresta direcionada u → v com flag de exclusão temporária. */
-struct Edge {
-    int to;           // vértice de destino
-    bool excluded;    // true = ignorada durante travessias (exclusão temporária)
+struct Aresta {
+    int destino;           // vértice de destino
+    bool excluida;    // true = ignorada durante travessias (exclusão temporária)
  
-    explicit Edge(int to) : to(to), excluded(false) {}
+    explicit Aresta(int destino) : destino(destino), excluida(false) {}
 };
-
+ 
 struct ReductionResult {
-    int removedEdges;
-    long long operations;
+    int arestasRemovidas;
+    long long ops;
 };
  
 class Graph {
@@ -49,43 +49,43 @@ public:
     int numVertices() const;
  
     /** Retorna o número de arestas ativas (não excluídas permanentemente). */
-    int numEdges() const;
+    int numArestas() const;
  
     /**
      * Adiciona a aresta direcionada u → v.
      * Não verifica duplicatas.
      */
-    void addEdge(int u, int v);
+    void adicionaAresta(int u, int v);
  
     /**
      * Remove permanentemente a aresta direcionada u → v, se existir.
      * Retorna true se a aresta existia e foi removida.
      */
-    bool removeEdge(int u, int v);
+    bool removeAresta(int u, int v);
  
     /**
      * Retorna true se existe a aresta u → v (ativa e não excluída).
      */
-    bool hasEdge(int u, int v) const;
+    bool temAresta(int u, int v) const;
  
     /**
      * Marca a aresta u → v como excluída temporariamente.
      * Durante travessias, arestas excluídas são ignoradas.
      * Retorna true se a aresta foi encontrada e marcada.
      */
-    bool excludeEdge(int u, int v);
+    bool excluiAresta(int u, int v);
  
     /**
      * Restaura a aresta u → v (desfaz exclusão temporária).
      * Retorna true se a aresta foi encontrada e restaurada.
      */
-    bool restoreEdge(int u, int v);
+    bool refazAresta(int u, int v);
  
     /**
      * Retorna a lista de arestas do vértice u (incluindo excluídas).
      * Os algoritmos devem checar edge.excluded antes de usar.
      */
-    const std::vector<Edge>& edges(int u) const;
+    const std::vector<Aresta>& arestas(int u) const;
  
     /**
      * Imprime o grafo no formato:
@@ -96,8 +96,8 @@ public:
  
 private:
     int _numVertices;
-    int _numEdges;
+    int _numArestas;
  
     // _adj[u] contém as arestas saindo de u
-    std::vector<std::vector<Edge>> _adj;
+    std::vector<std::vector<Aresta>> _adj;
 };

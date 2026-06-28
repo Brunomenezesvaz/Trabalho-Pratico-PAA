@@ -4,18 +4,18 @@
 // DFS recursiva
 // ─────────────────────────────────────────────────────────────────────────────
 
-bool TransitiveReductionDFS::dfs(const Graph& g, int current, int target,
-                                  std::vector<bool>& visited, long long& operations) {
-    operations++; // Conta cada chamada de DFS (visita a vértice)
+bool TransitiveReductionDFS::dfs(const Graph& g, int atual, int alvo,
+                                  std::vector<bool>& visitado, long long& ops) {
+    ops++; // Conta cada chamada de DFS (visita a vértice)
     
-    // Explora cada aresta ativa saindo de current
-    for (const Edge& e : g.edges(current)) {
-        if (e.excluded) continue;          // ignora arestas excluídas
-        if (e.to == target) return true;   // alvo encontrado
-        if (visited[e.to]) continue;       // evita revisitar
+    // Explora cada aresta ativa saindo de atual
+    for (const Aresta& e : g.arestas(atual)) {
+        if (e.excluida) continue;          // ignora arestas excluídas
+        if (e.destino == alvo) return true;   // alvo encontrado
+        if (visitado[e.destino]) continue;       // evita revisitar
 
-        visited[e.to] = true;
-        if (dfs(g, e.to, target, visited, operations))
+        visitado[e.destino] = true;
+        if (dfs(g, e.destino, alvo, visitado, ops))
             return true;
     }
     return false;
@@ -25,41 +25,41 @@ bool TransitiveReductionDFS::dfs(const Graph& g, int current, int target,
 // Algoritmo principal
 // ─────────────────────────────────────────────────────────────────────────────
 
-ReductionResult TransitiveReductionDFS::reduce(Graph& g) {
-    int removed = 0;
-    long long operations = 0;
+ReductionResult TransitiveReductionDFS::reducao(Graph& g) {
+    int removido = 0;
+    long long ops = 0;
     const int V = g.numVertices();
 
     for (int u = 0; u < V; ++u) {
         // Coleta destinos das arestas de u antes de iterar
         // (evita invalidar iteradores durante remoções)
-        std::vector<int> targets;
-        for (const Edge& e : g.edges(u))
-            targets.push_back(e.to);
+        std::vector<int> alvos;
+        for (const Aresta& e : g.arestas(u))
+            alvos.push_back(e.destino);
 
-        for (int v : targets) {
+        for (int v : alvos) {
             // Verifica se a aresta ainda existe (pode ter sido removida)
-            if (!g.hasEdge(u, v)) continue;
+            if (!g.temAresta(u, v)) continue;
 
             // Passo 1: exclui temporariamente u → v
-            g.excludeEdge(u, v);
+            g.excluiAresta(u, v);
 
             // Passo 2: DFS de u sem usar a aresta excluída
-            std::vector<bool> visited(V, false);
-            visited[u] = true;
-            bool reachable = dfs(g, u, v, visited, operations);
+            std::vector<bool> visitado(V, false);
+            visitado[u] = true;
+            bool alcancavel = dfs(g, u, v, visitado, ops);
 
             // Passo 3: decide
-            if (reachable) {
+            if (alcancavel) {
                 // Aresta redundante — remove permanentemente
-                g.removeEdge(u, v);
-                ++removed;
+                g.removeAresta(u, v);
+                ++removido;
             } else {
                 // Aresta necessária — restaura
-                g.restoreEdge(u, v);
+                g.refazAresta(u, v);
             }
         }
     }
 
-    return {removed, operations};
+    return {removido, ops};
 }

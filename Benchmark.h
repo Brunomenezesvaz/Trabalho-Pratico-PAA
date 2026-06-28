@@ -7,17 +7,17 @@
 struct TestResult {
     int V;
     double p;
-    int initialEdges;
+    int arestasIniciais;
     
     // DFS Results
-    double dfsTimeMs;
-    int dfsRemovedEdges;
-    long long dfsOperations;
+    double tempoDfsMs;
+    int dfsArestasRemovidas;
+    long long dfsOps;
     
     // BFS Results
-    double bfsTimeMs;
-    int bfsRemovedEdges;
-    long long bfsOperations;
+    double tempoBfsMs;
+    int bfsArestasRemovidas;
+    long long bfsOps;
 };
 
 class Benchmark {
@@ -26,7 +26,7 @@ public:
      * Gera um grafo direcionado usando o modelo de Erdős-Rényi.
      * Para cada par (u, v) com u != v, adiciona a aresta com probabilidade p.
      */
-    static Graph generateErdosRenyi(int V, double p, unsigned int seed);
+    static Graph geraErdosRenyi(int V, double p, unsigned int seed);
 
     /**
      * Executa a bateria de testes definida no enunciado.
