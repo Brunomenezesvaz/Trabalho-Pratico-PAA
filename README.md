@@ -98,8 +98,8 @@ A BFS foi otimizada para evitar overhead de alocação de memória dinâmica (`s
 ├── TransitiveReductionBFS.h     Declaração do algoritmo de redução por BFS
 ├── TransitiveReductionBFS.cpp   Implementação da redução BFS otimizada
 ├── Benchmark.h                  Declaração do gerador aleatório e orquestrador do benchmark
-├── Benchmark.cpp                Orquestração do benchmark (Erdős-Rényi e medições)
-├── main.cpp                     Ponto de entrada (validação de sanidade e execução)
+├── Benchmark.cpp                Orquestração do benchmark (geração aleatória e medições)
+├── main.cpp                     Ponto de entrada (execução do benchmark experimental)
 └── README.md                    Este arquivo de documentação
 ```
 
@@ -107,7 +107,7 @@ A BFS foi otimizada para evitar overhead de alocação de memória dinâmica (`s
 
 ## Benchmark
 
-Os algoritmos são comparados experimentalmente em grafos aleatórios gerados pelo modelo **Erdős–Rényi direcionado**: cada aresta (u, v) com u ≠ v existe com probabilidade p independentemente.
+Os algoritmos são comparados experimentalmente em **grafos direcionados aleatórios**: para cada par ordenado (u, v) com u ≠ v, a aresta é adicionada com probabilidade p independentemente.
 
 ### Variáveis testadas
 
@@ -152,9 +152,8 @@ g++ -std=c++17 -O2 -o transitive_reduction Graph.cpp TransitiveReductionDFS.cpp 
 
 ### Saída de Resultados
 Ao executar o programa:
-1. Um **teste de sanidade** é executado inicialmente em um grafo pequeno para verificar e certificar que ambos os algoritmos produzem exatamente a mesma redução transitiva.
-2. A bateria completa de testes experimentais é executada para todas as configurações de $(V, p)$.
-3. As médias de tempo e operações de cada configuração são salvas automaticamente em um arquivo CSV chamado `benchmark_results.csv` na raiz do diretório.
+1. A bateria completa de testes experimentais é executada para todas as configurações de (V, p).
+2. As médias de tempo e operações de cada configuração são salvas automaticamente em um arquivo CSV chamado `benchmark_results.csv` na raiz do diretório.
 
 ---
 
