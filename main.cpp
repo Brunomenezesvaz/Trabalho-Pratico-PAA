@@ -5,11 +5,7 @@
 #include <iostream>
 #include <vector>
 
-// Constrói o grafo de teste:
-//   0 → 1 → 2 → 3
-//   0 -------→ 2   (redundante: 0→1→2)
-//   1 -------→ 3   (redundante: 1→2→3)
-//   0 -------→ 3   (redundante: 0→1→2→3)
+// Constrói o grafo de teste
 Graph buildTestGraph() {
     Graph g(4);
     g.adicionaAresta(0, 1);
@@ -26,7 +22,7 @@ void printSection(const std::string& title) {
 }
 
 int main() {
-    // ── Teste de Sanidade ─────────────────────────────────────────────────────
+    // Teste de sanidade
     printSection("Grafo original");
     Graph g1 = buildTestGraph();
     g1.print();
@@ -56,7 +52,7 @@ int main() {
     std::cout << (same ? "OK - ambos produziram o mesmo resultado de reducao.\n"
                        : "ERRO - resultados divergem!\n");
 
-    // ── Benchmark Experimental Completo ───────────────────────────────────────
+    // Benchmark
     printSection("Benchmark Experimental");
     
     std::vector<int> vertexSizes = {50, 100, 250, 500, 1000};
